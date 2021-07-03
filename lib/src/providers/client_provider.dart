@@ -1,0 +1,56 @@
+import 'dart:convert';
+
+import 'package:hcl_zgaf_tdmi_final/src/models/client_model.dart';
+import 'package:http/http.dart' as http;
+import 'dart:core';
+import 'package:mime_type/mime_type.dart';
+import 'package:http_parser/http_parser.dart';
+import 'dart:io';
+
+class ClientProvider {
+  final String _url = 'pv0o5o5psl.execute-api.us-east-2.amazonaws.com';
+
+  Future<bool> crearCliente(ClientModel user) async {
+    final url = Uri.https(_url, '/prod/api/nuevo-cliente');
+
+    final resp = await http.post(url,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: clientModelToJson(user));
+
+    print(clientModelToJson(user));
+    final decodeData = json.decode(resp.body);
+
+    print(decodeData);
+
+    return true;
+  }
+
+  Future<List<ClientModel>> cargarProductos() async {
+    final url = Uri.https(_url, '/prod/api/clientes');
+    final resp = await http.get(url);
+
+    // final decodeData = json.decode(resp.body);
+
+    final List<dynamic> decodeData = json.decode(resp.body);
+
+    final List<Map<String, dynamic>> aux = new List();
+    final List<ClientModel> clientes = new List();
+
+    // // if (decodeData == null) return [];
+
+    decodeData.forEach((cliente) {
+      Map<String, dynamic> auxCliente = cliente;
+      aux.add(auxCliente);
+    });
+
+    aux.forEach((client) {
+      final prodTemp = ClientModel.fromJson(client);
+      clientes.add(prodTemp);
+    });
+    // print(productos);
+
+    return clientes;
+  }
+}
